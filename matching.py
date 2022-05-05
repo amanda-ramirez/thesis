@@ -32,3 +32,20 @@ for i in cb.iterrows():
 #%%
 
 pairs = pd.DataFrame(data=pairs_l,columns=['slb_id','cb_id'])
+
+#pairs.to_excel('pairs.xlsx')
+
+#%%
+unique_slb = pairs['slb_id'].unique()
+
+dup = []
+uni = []
+
+for i in unique_slb:
+    count_ix = pairs[pairs['slb_id'] == i]
+    if len(count_ix) > 1:
+        dup.append(count_ix)
+    else:
+        uni.append(count_ix)
+        
+        
