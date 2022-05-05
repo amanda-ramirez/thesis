@@ -37,7 +37,7 @@ for i in cb.iterrows():
 
 all_pairs = pd.DataFrame(data=pairs_l,columns=['slb_id','cb_id'])
 
-all_pairs.to_excel('all_pairs.xlsx')
+#all_pairs.to_excel('all_pairs.xlsx')
 
 
 #%%
@@ -72,11 +72,30 @@ for i in cb.iterrows():
 
 true_pairs = pd.DataFrame(data=pairs_d).T
 true_pairs.reset_index(inplace=True)
-true_pairs.columns=['SLB ID','SLB Issue Date','SLB Maturity Date','SLB Amt Issued','CB ID','CB Issue Date','CB Maturity Date','CB Amt Issued']
+true_pairs.columns=['ID_SLB','Issue Date_SLB','Maturity_SLB','Amt Issued_SLB','ID_CB','Issue Date_CB','Maturity_CB','Amt Issued_CB']
 
+#%%
 
-        
-        
-        
-        
+slb = slb.add_suffix('_SLB')
+cb = cb.add_suffix('_CB')
+data = true_pairs.merge(slb,how='inner',left_on='ID_SLB', right_on='ID_SLB',suffixes=(None,'_x'))   
+     
+data = data.merge(cb,how='inner',left_on='ID_CB', right_on='ID_CB', suffixes=(None,'_y'))        
+
+#%%
+data.drop(columns=['Issue Date_SLB_x','Maturity_SLB_x','Amt Issued_SLB_x','Issue Date_CB_y',
+                   'Maturity_CB_y', 'Amt Issued_CB_y','Issuer&MTY&CPN&CURR&Seniority_CB', 
+                   'Issuer&MTY&CPN&CURR&Seniority_SLB','Yield at Issue (manual)_SLB'], inplace=True)
+
+slbcol = data.columns.str.endswith("_SLB")
+cbcol = data.columns.str.endswith("_CB")
+cols = data.columns[slbcol].append(data.columns[cbcol])
+data = data[cols]
+data.sort_values('ID_SLB',inplace=True)
+data.reset_index(inplace=True)
+
+#%%
+
+data.to_excel('true_pairs.xlsx')
+
         
