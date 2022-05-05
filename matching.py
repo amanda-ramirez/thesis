@@ -20,6 +20,8 @@ cb['Issue Date'] = pd.to_datetime(cb['Issue Date'])
 cb['Maturity'] = pd.to_datetime(cb['Maturity'], errors="coerce")
 cb['Amt Issued'] = pd.to_numeric(cb['Amt Issued'], errors="coerce")
 
+slb.dropna(subset=['Yield ask, at issue'],inplace=True)
+cb.dropna(subset=['Yield ask, yas'],inplace=True)
 
 #%%
 
@@ -37,6 +39,11 @@ for i in cb.iterrows():
 
 all_pairs = pd.DataFrame(data=pairs_l,columns=['slb_id','cb_id'])
 
+all_pairs_m = all_pairs.merge(slb,how='inner',left_on='slb_id', right_on='ID',suffixes=(None,'_x'))   
+     
+all_pairs_m = all_pairs_m.merge(cb,how='inner',left_on='cb_id', right_on='ID', suffixes=(None,'_y'))        
+
+all_pairs_m = all_pairs_m[['slb_id','cb_id',]].copy()
 #all_pairs.to_excel('all_pairs.xlsx')
 
 
@@ -92,7 +99,7 @@ cbcol = data.columns.str.endswith("_CB")
 cols = data.columns[slbcol].append(data.columns[cbcol])
 data = data[cols]
 data.sort_values('ID_SLB',inplace=True)
-data.reset_index(inplace=True)
+data.reset_index(inplace=True,drop=True)
 
 #%%
 
