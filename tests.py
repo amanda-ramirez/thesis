@@ -22,9 +22,17 @@ yields['Difference'] = yields['SLB Yields'] - yields['CB Yields']
 desc_stats = yields.describe()
 
 plt.boxplot(np.array(yields.iloc[:,:2]))
+
 plt.hist(np.array(yields.iloc[:,:1]))
+plt.hist(np.array(yields.iloc[:,1]))
+
 
 stats.probplot(yields['SLB Yields'], dist="norm", plot=plt)
 
 
 stats.wilcoxon(yields['SLB Yields'], yields['CB Yields'])
+
+#%%
+
+#OLS regression 
+data['Yield difference'] = data['Yield ask, at issue_SLB']-data['Yield ask, yas_CB']
