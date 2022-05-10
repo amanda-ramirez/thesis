@@ -31,7 +31,7 @@ qqline(slb)
 qqnorm(cb, main='CB')
 qqline(cb)
 
-qqnorm(d, main='CB')
+qqnorm(d, main='Yield difference')
 qqline(d)
 
 shapiro.test(slb)
@@ -59,11 +59,7 @@ new_df$"BICS Level 1_SLB"<- factor(new_df$"BICS Level 1_SLB", exclude=NULL)
 new_df$`Mty Type_SLB` <- factor(new_df$`Mty Type_SLB`, exclude=NULL)
 new_df$`Payment Rank_SLB` <- factor(new_df$`Payment Rank_SLB`, exclude=NULL)
 new_df$`Coupon Type_SLB` <- factor(new_df$`Coupon Type_SLB`, exclude=NULL)
-'new_df <- model.matrix(~.-1, data = new_df[, c("Cntry of Incorp_SLB", "BICS Level 1_SLB")],
-                       contrasts.arg = list(
-                         `Cntry of Incorp_SLB` = contrasts(new_df$"Cntry of Incorp_SLB", contrasts = FALSE),
-                         `BICS Level 1_SLB` = contrasts(new_df$"BICS Level 1_SLB", contrasts = FALSE)
-                       ))'
+
 #----
 library(lubridate)
 library(rethinking)
@@ -101,3 +97,17 @@ precis(model, prob=0.95, depth=2) # also gives values at edges of 95%
 # calculate correlation between variables
 cov2cor(vcov(model))
 
+#------- lm
+conts <- model.matrix(~.-1, data = new_df[, c("Cntry of Incorp_SLB", "BICS Level 1_SLB","Mty Type_SLB","Coupon Type_SLB")],
+                       contrasts.arg = list(
+                         `Cntry of Incorp_SLB` = contrasts(new_df$"Cntry of Incorp_SLB", contrasts = FALSE),
+                         `BICS Level 1_SLB` = contrasts(new_df$"BICS Level 1_SLB", contrasts = FALSE),
+                         `Mty Type_SLB` = contrasts(new_df$"Mty Type_SLB", contrasts = FALSE),
+                         `Coupon Type_SLB` = contrasts(new_df$"Coupon Type_SLB", contrasts = FALSE)
+                       ))
+
+model2 <- lm(Difference ~ `Cntry of Incorp_SLB` + `BICS Level 1_SLB` +
+               `Mty Type_SLB` + `Coupon Type_SLB` + iss_diff  + mty_diff +
+               size_diff, data=new_df)
+anova(model2)
+summary(model2)
