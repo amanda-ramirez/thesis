@@ -23,8 +23,11 @@ cb['Amt Issued'] = pd.to_numeric(cb['Amt Issued'], errors="coerce")
 slb.dropna(subset=['Yield ask, at issue'],inplace=True)
 cb.dropna(subset=['Yield ask, yas'],inplace=True)
 
-#%%
+slb.reset_index(inplace=True,drop=True)
+cb.reset_index(inplace=True,drop=True)
 
+#%%
+"""
 pairs_l = []
 
 for i in cb.iterrows():
@@ -45,13 +48,13 @@ all_pairs_m = all_pairs_m.merge(cb,how='inner',left_on='cb_id', right_on='ID', s
 
 all_pairs_m = all_pairs_m[['slb_id','cb_id',]].copy()
 #all_pairs.to_excel('all_pairs.xlsx')
-
+"""
 
 #%%
 
 def in_boundaries(slb, cb):
-    if (slb[1].loc['Issue Date'] - cb[1].loc['Issue Date'] < datetime.timedelta(1825)) \
-        &  (slb[1].loc['Maturity'] - cb[1].loc['Maturity'] < datetime.timedelta(1095)):
+    if (abs(slb[1].loc['Issue Date'] - cb[1].loc['Issue Date']).days < 1825) \
+        and  (abs(slb[1].loc['Maturity'] - cb[1].loc['Maturity']).days < 1095):
             if (cb[1].loc['Amt Issued'] < slb[1].loc['Amt Issued']* 4) and (cb[1].loc['Amt Issued'] > slb[1].loc['Amt Issued']* 0.25):
                 return True
 
@@ -64,19 +67,20 @@ for i in cb.iterrows():
                 count = {'Issue Date':0,
                          'Maturity':0,
                          'Amt Issued':0}
-                if (j[1].loc['Issue Date'] - pairs_d[j[1]['ID']][4]) > (j[1].loc['Issue Date'] - i[1].loc['Issue Date']):
+                if abs(j[1].loc['Issue Date'] - pairs_d[j[1]['ID']][4]) > abs(j[1].loc['Issue Date'] - i[1].loc['Issue Date']):
                     count['Issue Date'] = 1
-                if (j[1].loc['Maturity'] - pairs_d[j[1]['ID']][5]) > (j[1].loc['Maturity'] - i[1].loc['Maturity']):
+                if abs(j[1].loc['Maturity'] - pairs_d[j[1]['ID']][5]) > abs(j[1].loc['Maturity'] - i[1].loc['Maturity']):
                     count['Maturity'] = 1
                 if (j[1].loc['Amt Issued'] - pairs_d[j[1]['ID']][6]) > (j[1].loc['Amt Issued'] - i[1].loc['Amt Issued']):
                     count['Amt Issued'] = 1
-                if sum(count.values()) == 3 or (sum(count.values()) == 2 and in_boundaries(j,i)):
+                if (sum(count.values()) == 3) or ((sum(count.values()) == 2) and (in_boundaries(j,i))):
                     pairs_d[j[1]['ID']] = [j[1]['Issue Date'], j[1]['Maturity'],j[1]['Amt Issued'], i[1]['ID'],i[1]['Issue Date'],i[1]['Maturity'],i[1]['Amt Issued']]
-
+                    print("b",j[1]['ID'],i[1]['ID'],j[1]['Issue Date']-i[1]['Issue Date'], j[1]['Maturity']-i[1]['Maturity'])
             else:
                 if in_boundaries(j,i):
                     pairs_d[j[1]['ID']] = [j[1]['Issue Date'], j[1]['Maturity'],j[1]['Amt Issued'], i[1]['ID'],i[1]['Issue Date'],i[1]['Maturity'],i[1]['Amt Issued']]
-
+                    print(j[1]['ID'],i[1]['ID'],j[1]['Issue Date']-i[1]['Issue Date'], j[1]['Maturity']-i[1]['Maturity'])
+                    
 true_pairs = pd.DataFrame(data=pairs_d).T
 true_pairs.reset_index(inplace=True)
 true_pairs.columns=['ID_SLB','Issue Date_SLB','Maturity_SLB','Amt Issued_SLB','ID_CB','Issue Date_CB','Maturity_CB','Amt Issued_CB']
