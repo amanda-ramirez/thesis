@@ -7,9 +7,8 @@ Created on Tue May  3 21:52:18 2022
 """
 
 import pandas as pd
-import datetime as datetime
 
-slb = pd.read_excel("slb updated.xlsx", sheet_name=0)
+slb = pd.read_excel("Descriptive Statistics.xlsx", sheet_name=1)
 cb = pd.read_excel("slb updated.xlsx", sheet_name=1)
 
 
